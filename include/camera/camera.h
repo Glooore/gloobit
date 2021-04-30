@@ -19,26 +19,6 @@ namespace {
 
 class Camera
 {
-	private:
-		void updateCameraVectors()
-		{
-			glm::vec3 front;
-			front.x = cos(glm::radians(_yaw)) * cos(glm::radians(_pitch));
-			front.y = sin(glm::radians(_pitch));
-			front.z = sin(glm::radians(_yaw)) * cos(glm::radians(_pitch));
-
-			_camera_front = glm::normalize(front);
-			_camera_right = glm::normalize(glm::cross(_camera_front, _world_up));
-			_camera_up = glm::normalize(glm::cross(_camera_right, _camera_front));
-		}
-	protected:
-		glm::vec3 _camera_pos, _camera_up, _camera_front, _camera_right;
-		glm::vec3 _world_up;
-		float _fov;
-		float _yaw, _pitch;
-		float _lastX, _lastY;
-		float _speed;
-		float _mouse_sensitivity;
 	public:
 		Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f),
 			glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f),
@@ -98,6 +78,28 @@ class Camera
 				if (_pitch < -89.0f) _pitch = -89.0f;
 			}
 			updateCameraVectors();
+		}
+
+	protected:
+		glm::vec3 _camera_pos, _camera_up, _camera_front, _camera_right;
+		glm::vec3 _world_up;
+		float _fov;
+		float _yaw, _pitch;
+		float _lastX, _lastY;
+		float _speed;
+		float _mouse_sensitivity;
+
+	private:
+		void updateCameraVectors()
+		{
+			glm::vec3 front;
+			front.x = cos(glm::radians(_yaw)) * cos(glm::radians(_pitch));
+			front.y = sin(glm::radians(_pitch));
+			front.z = sin(glm::radians(_yaw)) * cos(glm::radians(_pitch));
+
+			_camera_front = glm::normalize(front);
+			_camera_right = glm::normalize(glm::cross(_camera_front, _world_up));
+			_camera_up = glm::normalize(glm::cross(_camera_right, _camera_front));
 		}
 };
 

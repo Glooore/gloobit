@@ -1,6 +1,8 @@
 #ifndef _OBJECT_H_
 #define _OBJECT_H_
 #include <iostream>
+#include <vector>
+#include <string>
 
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
@@ -8,6 +10,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+#include "shader/shader.h"
 
 
 namespace {
@@ -17,53 +21,75 @@ namespace {
 class Object 
 {
 	public:
-		Object(float* vertices)
+		Object(std::vector<float> vertices, std::string vertex, std::string fragment)
+			: _shader(vertex.c_str(), fragment.c_str()),
+			  _model(1.0f)
 		{
 			_vertices = vertices;
+			
+			_len_vertices = _vertices.size();
 
-			/* glGenVertexArrays(1, &_VAO); */
-			/* glGenBuffers(1, &_VBO); */
+			GLuint _VBO;
 
-			/* glBindVertexArray(_VAO); */
+			glGenVertexArrays(1, &_VAO);
+			glGenBuffers(1, &_VBO);
 
-			/* glBindBuffer(GL_ARRAY_BUFFER, _VBO); */
-			/* glBufferData(GL_ARRAY_BUFFER, sizeof(_vertices), _vertices, GL_STATIC_DRAW); */
+			glBindVertexArray(_VAO);
 
-			/* glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*) 0); */
-			/* glEnableVertexAttribArray(0); */
+			glBindBuffer(GL_ARRAY_BUFFER, _VBO);
+			glBufferData(GL_ARRAY_BUFFER, _vertices.size() * sizeof(float),
+					_vertices.data(), GL_STATIC_DRAW);
 
-			/* glBindVertexArray(0); */
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*) 0);
+			glEnableVertexAttribArray(0);
+
+			glBindVertexArray(0);
+			glDeleteBuffers(1, &_VBO);
 		};
 
-		unsigned int getVAO()
+		~Object()
+		{
+
+		};
+
+		GLuint getVAO()
 		{
 			return _VAO;
 		};
 
-		unsigned int getVBO()
+		GLuint getVerticesLen()
 		{
-			return _VBO;
-		};
+			return _len_vertices;
+		}
 
-		float* getVertices()
+		Shader* getShader()
+		{
+			return &_shader;
+		}
+
+		glm::mat4 getModel()
+		{
+			return _model;
+		}
+
+		std::vector<float> getVertices()
 		{
 			return _vertices;
 		}
 
-		void setVAO(unsigned int VAO)
+		void setMVP(glm::mat4 view, glm::mat4 projection)
 		{
-			_VAO = VAO;
+			_mvp = projection * view * _model;
 		}
 
-		void setVBO(unsigned int VBO)
-		{
-			_VBO = VBO;
-		}
 	protected:
 	private:
-		float* _vertices;
-		unsigned int _VAO, _VBO;
-		//Shader shader;
+		std::vector<float> _vertices;
+		GLuint _len_vertices;
+		GLuint _VAO;
+		Shader _shader;
+		glm::mat4 _model;
+		glm::mat4 _mvp;
 
 };
 
