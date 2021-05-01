@@ -11,7 +11,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "shader/shader.h"
+#include "shader.h"
 
 
 namespace {
@@ -21,9 +21,8 @@ namespace {
 class Object 
 {
 	public:
-		Object(std::vector<float> vertices, std::string vertex, std::string fragment)
-			: _shader(vertex.c_str(), fragment.c_str()),
-			  _model(1.0f)
+		Object(std::vector<float> vertices)
+			  : _model(1.0f)
 		{
 			_vertices = vertices;
 			
@@ -49,9 +48,29 @@ class Object
 
 		~Object()
 		{
-
+			glDeleteBuffers(1, &_VAO);
 		};
 
+		void draw()
+		{
+			glBindVertexArray(_VAO);
+			_shader -> bind();
+
+			glDrawArrays(GL_TRIANGLES, 0, _len_vertices);
+			glBindVertexArray(0);
+		}
+
+		void rotate(float radians, glm::vec3 axis)
+		{
+			_model = glm::rotate(_model, radians, axis);
+		}
+
+		void translate(glm::vec3 trans)
+		{
+			_model = glm::translate(_model, trans);
+		}
+
+		// getters
 		GLuint getVAO()
 		{
 			return _VAO;
@@ -64,7 +83,7 @@ class Object
 
 		Shader* getShader()
 		{
-			return &_shader;
+			return _shader;
 		}
 
 		glm::mat4 getModel()
@@ -77,17 +96,30 @@ class Object
 			return _vertices;
 		}
 
+		// setter
 		void setMVP(glm::mat4 view, glm::mat4 projection)
 		{
 			_mvp = projection * view * _model;
 		}
 
+		void attachShader(Shader* shader)
+		{
+			_shader = shader;
+		}
+
 	protected:
 	private:
+		struct Material
+		{
+			float color;
+			float diffuse;
+			float ambient;
+			float specular;
+		} _Material;
 		std::vector<float> _vertices;
 		GLuint _len_vertices;
 		GLuint _VAO;
-		Shader _shader;
+		Shader* _shader;
 		glm::mat4 _model;
 		glm::mat4 _mvp;
 

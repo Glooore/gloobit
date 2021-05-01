@@ -13,7 +13,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "object/object.hpp"
+#include "object.hpp"
 
 class Renderer
 {
@@ -51,7 +51,7 @@ class Renderer
 
 				Shader* shader = obj -> getShader();
 				shader -> setMat4("mvp", mvp);
-				shader -> use();
+				shader -> bind();
 
 				glBindVertexArray(VAO);
 				glDrawArrays(GL_TRIANGLES, 0, n);

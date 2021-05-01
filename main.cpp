@@ -3,7 +3,7 @@
 #include <vector>
 #include <memory>
 
-#include "window/window.hpp"
+#include "window.hpp"
 
 #include <GLFW/glfw3.h>
 // matrix and vector types, a buncha useful stuff!
@@ -11,10 +11,10 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "renderer/renderer.hpp"
-#include "object/object.hpp"
-#include "shader/shader.h"
-#include "camera/camera.h"
+#include "renderer.hpp"
+#include "object.hpp"
+#include "shader.h"
+#include "camera.h"
 
 void process_input(GLFWwindow* window);
 void mouse_callback(GLFWwindow* window, double x_position, double y_position);
@@ -97,10 +97,15 @@ int main(int argc, char** argv)
 	glfwSetCursorPosCallback(window_context, mouse_callback);
 	glfwSetInputMode(window_context, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-	Object cube(vertices2, "./shaders/shader.vert", "./shaders/shader.frag");
+	Shader shader;
+	shader.compileVertexShader("./shaders/shader.vert");
+	shader.compileFragmentShader("./shaders/shader.frag");
+	shader.bind();
+
+	Object cube(vertices2);
+	cube.attachShader(&shader);
 	/* renderer.addObject(new Object(vertices, "./shaders/shader.vert", "./shaders/shader.frag")); */
 	renderer.addObject(&cube);
-
 
 
 
