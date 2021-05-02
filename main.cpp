@@ -5,13 +5,14 @@
 
 #include "window.hpp"
 
+#include "glad/glad.h"
 #include <GLFW/glfw3.h>
 // matrix and vector types, a buncha useful stuff!
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "renderer.hpp"
+#include "renderer.h"
 #include "object.hpp"
 #include "shader.h"
 #include "camera.h"
@@ -84,6 +85,7 @@ int main(int argc, char** argv)
 
 	Window window(800, 600, "gloobit");
 	window.init();
+	GLFWwindow* window_context = window.getContext();
 
 	Renderer renderer;
 
@@ -91,8 +93,6 @@ int main(int argc, char** argv)
 			(float) 800 / (float) 600, 0.1f, 100.0f);
 	/* renderer.initRenderer(); */
 	renderer.init(camera.getViewMatrix(), projection);
-
-	GLFWwindow* window_context = window.getContext();
 
 	glfwSetCursorPosCallback(window_context, mouse_callback);
 	glfwSetInputMode(window_context, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -106,8 +106,6 @@ int main(int argc, char** argv)
 	cube.attachShader(&shader);
 	/* renderer.addObject(new Object(vertices, "./shaders/shader.vert", "./shaders/shader.frag")); */
 	renderer.addObject(&cube);
-
-
 
 	while(!glfwWindowShouldClose(window_context))
 	{

@@ -16,6 +16,11 @@ Shader::Shader()
 	m_program_id = glCreateProgram();
 }
 
+Shader::~Shader()
+{
+	glDeleteProgram(m_program_id);
+}
+
 void Shader::compileVertexShader(const char* vertex_path)
 {
 	std::string vertex_code;
@@ -143,11 +148,6 @@ void Shader::compileGeometryShader(const char* geometry_path)
 	glAttachShader(m_program_id, geometry_shader);
 	glLinkProgram(m_program_id);
 	glDeleteShader(geometry_shader);
-}
-
-Shader::~Shader()
-{
-	glDeleteProgram(m_program_id);
 }
 
 void Shader::bind() const
