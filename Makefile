@@ -8,11 +8,11 @@ main:
 	./render.out
 
 debug:
-	$(CC) $(CFLAGS) -g -o render.out main.cpp .src/*.cpp ./vendor/glad/glad.c
-	gdb ./render.out
+	$(CC) $(CFLAGS) -g -o render.out main.cpp ./src/*.cpp ./vendor/glad/glad.c
+	gdb -tui ./render.out
 
 build:
-	$(CC) $(CFLAGS) -v -o render.out main.cpp .src/*.cpp ./vendor/glad/glad.c
+	$(CC) $(CFLAGS) -v -o render.out main.cpp ./src/*.cpp ./vendor/glad/glad.c
 
 clean:
 	rm ./render.out
