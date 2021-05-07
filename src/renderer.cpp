@@ -26,12 +26,22 @@ void Renderer::addObject(Object* object)
 	m_objects.push_back(object);
 };
 
+void Renderer::draw(unsigned int VAO, unsigned int vertices_count, glm::mat4 mvp, Shader shader)
+{
+	shader.setMat4("mvp", mvp);
+	shader.bind();
+
+	glBindVertexArray(VAO);
+	glDrawArrays(GL_TRIANGLES, 0, vertices_count);
+	glBindVertexArray(0);
+};
+
 void Renderer::drawObjects()
 {
 	for (auto obj : m_objects)
 	{
-		GLuint VAO = obj -> getVAO();
-		GLuint n = obj -> getVerticesLen();
+		unsigned int VAO = obj -> getVAO();
+		unsigned int n = obj -> getVerticesLen();
 		glm::mat4 model = obj -> getModel();
 
 		glm::mat4 mvp = m_proj * m_view * model;

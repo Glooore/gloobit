@@ -11,6 +11,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "object.hpp"
+#include "shader.h"
 
 class Renderer
 {
@@ -22,6 +23,7 @@ class Renderer
 
 		void addObject(Object* object);
 
+		void draw(unsigned int VAO, unsigned int vertices_count, glm::mat4 mvp, Shader shader);
 		void drawObjects();
 		void updateView(glm::mat4 view);
 	protected:
