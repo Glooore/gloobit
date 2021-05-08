@@ -1,5 +1,5 @@
 #include "renderer.h"
-#include "object.hpp"
+#include "object.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -41,7 +41,7 @@ void Renderer::drawObjects()
 	for (auto obj : m_objects)
 	{
 		unsigned int VAO = obj -> getVAO();
-		unsigned int n = obj -> getVerticesLen();
+		unsigned int n = obj -> getVerticesCount();
 		glm::mat4 model = obj -> getModel();
 
 		glm::mat4 mvp = m_proj * m_view * model;

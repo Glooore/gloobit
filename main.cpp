@@ -13,7 +13,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "renderer.h"
-#include "object.hpp"
+#include "object.h"
 #include "shader.h"
 #include "camera.h"
 
@@ -37,9 +37,9 @@ namespace {
 
 int main(int argc, char** argv)
 {
-	/* std::vector<float> figure_vertices = generateCylinderVertices(10.0f, 2.0f, 200); */
-	/* std::vector<float> figure_vertices = generateConeVertices(10.0f, 2.0f, 10); */
-	std::vector<float> figure_vertices = generateSphereVertices(5.0f, 50, 50);
+	std::vector<float> cylinder_vertices = generateCylinderVertices(6.0f, 1.0f, 10);
+	std::vector<float> cone_vertices = generateConeVertices(6.0f, 2.0f, 10);
+	std::vector<float> sphere_vertices = generateSphereVertices(3.0f, 10, 10);
 
 	Window window(800, 600, "gloobit");
 	window.init();
@@ -65,15 +65,25 @@ int main(int argc, char** argv)
 	/* unsigned int n = cube.getVerticesLen(); */
 	/* Shader* shader = cube.getShader(); */
 
-	Object figure(figure_vertices);
-	unsigned int VAO = figure.getVAO();
-	unsigned int n = figure.getVerticesLen();
+	Object cylinder(cylinder_vertices);
+	Object cone(cone_vertices);
+	Object sphere(sphere_vertices);
+
+	cylinder.translate(glm::vec3(0.0f, 0.0f, -25.0f));
+	cone.translate(glm::vec3(0.0f, 0.0f, -15.0f));
+	sphere.translate(glm::vec3(0.0f, 0.0f, -5.0f));
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
+	cylinder.attachShader(&shader);
+	cone.attachShader(&shader);
+	sphere.attachShader(&shader);
+
 	/* cube.attachShader(&shader); */
 	/* renderer.addObject(new Object(vertices, "./shaders/shader.vert", "./shaders/shader.frag")); */
-	/* renderer.addObject(&cube); */
+	renderer.addObject(&cylinder);
+	renderer.addObject(&cone);
+	renderer.addObject(&sphere);
 
 	while(!glfwWindowShouldClose(window_context))
 	{
@@ -85,17 +95,14 @@ int main(int argc, char** argv)
 		process_input(window_context);
 
 		renderer.updateView(camera.getViewMatrix());
-		glm::mat4 model = figure.getModel();
-		glm::mat4 view = camera.getViewMatrix();
-		glm::mat4 mvp = projection * view * model;
 
 		// setting a gery background
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		/* // clearing color buffer and z buffer */
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		renderer.draw(VAO, n, mvp, shader);
-		/* renderer.drawObjects(); */
+		/* renderer.draw(VAO, n, mvp, shader); */
+		renderer.drawObjects();
 
 		glfwSwapBuffers(window_context);
 		glfwPollEvents();
@@ -161,8 +168,8 @@ std::vector<float> generateCylinderVertices(float height, float radius, unsigned
 {
 	std::vector<float> vertices;
 
-	glm::vec3 top_middle = glm::vec3(0.0f, 0.0f, height/2.0f);
-	glm::vec3 bottom_middle = glm::vec3(0.0f, 0.0f, -height/2.0f);
+	glm::vec3 top_middle = glm::vec3(0.0f, height/2.0f, 0.0f);
+	glm::vec3 bottom_middle = glm::vec3(0.0f, -height/2.0f, 0.0f);
 
 	// genereate top circle vertices;
 	float angle_step = (2 * M_PI)/N;
@@ -177,13 +184,13 @@ std::vector<float> generateCylinderVertices(float height, float radius, unsigned
 
 		// first circle point
 		vertices.push_back(cos(i * angle_step) * radius);
+		vertices.push_back(top_middle.y);
 		vertices.push_back(sin(i * angle_step) * radius);
-		vertices.push_back(top_middle.z);
 
 		// second circle point
 		vertices.push_back(cos((i + 1) * angle_step) * radius);
+		vertices.push_back(top_middle.y);
 		vertices.push_back(sin((i + 1) * angle_step) * radius);
-		vertices.push_back(top_middle.z);
 	}
 
 	// generate bottom circle vertices;
@@ -197,13 +204,13 @@ std::vector<float> generateCylinderVertices(float height, float radius, unsigned
 
 		// first circle point
 		vertices.push_back(cos(i * angle_step) * radius);
+		vertices.push_back(bottom_middle.y);
 		vertices.push_back(sin(i * angle_step) * radius);
-		vertices.push_back(bottom_middle.z);
 
 		// second circle point
 		vertices.push_back(cos((i + 1) * angle_step) * radius);
+		vertices.push_back(bottom_middle.y);
 		vertices.push_back(sin((i + 1) * angle_step) * radius);
-		vertices.push_back(bottom_middle.z);
 	}
 
 	// generate side vertices;
@@ -211,29 +218,29 @@ std::vector<float> generateCylinderVertices(float height, float radius, unsigned
 	{
 		// first rectangle triangle
 		vertices.push_back(cos(i * angle_step) * radius);
+		vertices.push_back(top_middle.y);
 		vertices.push_back(sin(i * angle_step) * radius);
-		vertices.push_back(top_middle.z);
 
 		vertices.push_back(cos(i * angle_step) * radius);
+		vertices.push_back(bottom_middle.y);
 		vertices.push_back(sin(i * angle_step) * radius);
-		vertices.push_back(bottom_middle.z);
 
 		vertices.push_back(cos((i + 1) * angle_step) * radius);
+		vertices.push_back(top_middle.y);
 		vertices.push_back(sin((i + 1) * angle_step) * radius);
-		vertices.push_back(top_middle.z);
 
 		// second rectangle triangle
 		vertices.push_back(cos((i + 1) * angle_step) * radius);
+		vertices.push_back(bottom_middle.y);
 		vertices.push_back(sin((i + 1) * angle_step) * radius);
-		vertices.push_back(bottom_middle.z);
 
 		vertices.push_back(cos((i + 1) * angle_step) * radius);
+		vertices.push_back(top_middle.y);
 		vertices.push_back(sin((i + 1) * angle_step) * radius);
-		vertices.push_back(top_middle.z);
 
 		vertices.push_back(cos(i * angle_step) * radius);
+		vertices.push_back(bottom_middle.y);
 		vertices.push_back(sin(i * angle_step) * radius);
-		vertices.push_back(bottom_middle.z);
 	}
 
 	return vertices;
@@ -243,8 +250,8 @@ std::vector<float> generateConeVertices(float height, float radius, unsigned int
 {
 	std::vector<float> vertices;
 
-	glm::vec3 top_middle = glm::vec3(0.0f, 0.0f, height/2.0f);
-	glm::vec3 bottom_middle = glm::vec3(0.0f, 0.0f, -height/2.0f);
+	glm::vec3 top_middle = glm::vec3(0.0f, height/2.0f, 0.0f);
+	glm::vec3 bottom_middle = glm::vec3(0.0f, -height/2.0f, 0.0f);
 
 	float angle_step = (2 * M_PI)/N;
 
@@ -258,13 +265,13 @@ std::vector<float> generateConeVertices(float height, float radius, unsigned int
 
 		// first circle point
 		vertices.push_back(cos(i * angle_step) * radius);
+		vertices.push_back(bottom_middle.y);
 		vertices.push_back(sin(i * angle_step) * radius);
-		vertices.push_back(bottom_middle.z);
 
 		// second circle point
 		vertices.push_back(cos((i + 1) * angle_step) * radius);
+		vertices.push_back(bottom_middle.y);
 		vertices.push_back(sin((i + 1) * angle_step) * radius);
-		vertices.push_back(bottom_middle.z);
 	}
 
 	for (unsigned int i = 0; i < N; i++)
@@ -275,13 +282,13 @@ std::vector<float> generateConeVertices(float height, float radius, unsigned int
 
 		// first circle point
 		vertices.push_back(cos(i * angle_step) * radius);
+		vertices.push_back(bottom_middle.y);
 		vertices.push_back(sin(i * angle_step) * radius);
-		vertices.push_back(bottom_middle.z);
 
 		// second circle point
 		vertices.push_back(cos((i + 1) * angle_step) * radius);
+		vertices.push_back(bottom_middle.y);
 		vertices.push_back(sin((i + 1) * angle_step) * radius);
-		vertices.push_back(bottom_middle.z);
 	}
 	return vertices;
 }
@@ -290,8 +297,8 @@ std::vector<float> generateSphereVertices(float radius, unsigned int N, unsigned
 {
 	std::vector<float> vertices;
 
-	glm::vec3 top_middle = glm::vec3(0.0f, 0.0f, radius);
-	glm::vec3 bottom_middle = glm::vec3(0.0f, 0.0f, -radius);
+	glm::vec3 top_middle = glm::vec3(0.0f, radius, 0.0f);
+	glm::vec3 bottom_middle = glm::vec3(0.0f, -radius, 0.0f);
 
 	float v_step = M_PI  / (M + 2);
 	float h_step = (2 * M_PI) / N;
@@ -304,12 +311,12 @@ std::vector<float> generateSphereVertices(float radius, unsigned int N, unsigned
 		vertices.push_back(top_middle.z);
 
 		vertices.push_back(radius * cos(i * h_step) * cos(M_PI/2 - v_step));
-		vertices.push_back(radius * sin(i * h_step) * cos(M_PI/2 - v_step));
 		vertices.push_back(radius * sin(M_PI/2 - v_step));
+		vertices.push_back(radius * sin(i * h_step) * cos(M_PI/2 - v_step));
 
 		vertices.push_back(radius * cos((i + 1) * h_step) * cos(M_PI/2 - v_step));
-		vertices.push_back(radius * sin((i + 1) * h_step) * cos(M_PI/2 - v_step));
 		vertices.push_back(radius * sin(M_PI/2 - v_step));
+		vertices.push_back(radius * sin((i + 1) * h_step) * cos(M_PI/2 - v_step));
 	}
 
 	//generate sides
@@ -317,20 +324,35 @@ std::vector<float> generateSphereVertices(float radius, unsigned int N, unsigned
 	{
 		for (unsigned int j = 1; j <= M; j++)
 		{
+			// top triangle
 			vertices.push_back(radius * cos(i * h_step) * cos(M_PI/2 - j * v_step));
-			vertices.push_back(radius * sin(i * h_step) * cos(M_PI/2 - j * v_step));
 			vertices.push_back(radius * sin(M_PI/2 - j * v_step));
+			vertices.push_back(radius * sin(i * h_step) * cos(M_PI/2 - j * v_step));
 
 			vertices.push_back(radius * cos(i * h_step) * cos(M_PI/2 - (j + 1) * v_step));
-			vertices.push_back(radius * sin(i * h_step) * cos(M_PI/2 - (j + 1) * v_step));
 			vertices.push_back(radius * sin(M_PI/2 - (j + 1) * v_step));
+			vertices.push_back(radius * sin(i * h_step) * cos(M_PI/2 - (j + 1) * v_step));
 
 			vertices.push_back(radius * cos((i + 1) * h_step) * cos(M_PI/2 - j * v_step));
-			vertices.push_back(radius * sin((i + 1) * h_step) * cos(M_PI/2 - j * v_step));
 			vertices.push_back(radius * sin(M_PI/2 - j * v_step));
+			vertices.push_back(radius * sin((i + 1) * h_step) * cos(M_PI/2 - j * v_step));
+
+			// bottom triangle
+			vertices.push_back(radius * cos((i + 1) * h_step) * cos(M_PI/2 - j * v_step));
+			vertices.push_back(radius * sin(M_PI/2 - j * v_step));
+			vertices.push_back(radius * sin((i + 1) * h_step) * cos(M_PI/2 - j * v_step));
+
+			vertices.push_back(radius * cos(i * h_step) * cos(M_PI/2 - (j + 1) * v_step));
+			vertices.push_back(radius * sin(M_PI/2 - (j + 1) * v_step));
+			vertices.push_back(radius * sin(i * h_step) * cos(M_PI/2 - (j + 1) * v_step));
+
+			vertices.push_back(radius * cos((i + 1) * h_step) * cos(M_PI/2 - (j + 1) * v_step));
+			vertices.push_back(radius * sin(M_PI/2 - (j + 1) * v_step));
+			vertices.push_back(radius * sin((i + 1) * h_step) * cos(M_PI/2 - (j + 1) * v_step));
 		}
 	}
 
+	// generate bottom hat
 	for (unsigned int i = 0; i < N; i++)
 	{
 		vertices.push_back(bottom_middle.x);
@@ -338,12 +360,12 @@ std::vector<float> generateSphereVertices(float radius, unsigned int N, unsigned
 		vertices.push_back(bottom_middle.z);
 
 		vertices.push_back(radius * cos(i * h_step) * cos(-M_PI/2 + v_step));
-		vertices.push_back(radius * sin(i * h_step) * cos(-M_PI/2 + v_step));
 		vertices.push_back(radius * sin(-M_PI/2 + v_step));
+		vertices.push_back(radius * sin(i * h_step) * cos(-M_PI/2 + v_step));
 
 		vertices.push_back(radius * cos((i + 1) * h_step) * cos(-M_PI/2 + v_step));
-		vertices.push_back(radius * sin((i + 1) * h_step) * cos(-M_PI/2 + v_step));
 		vertices.push_back(radius * sin(-M_PI/2 + v_step));
+		vertices.push_back(radius * sin((i + 1) * h_step) * cos(-M_PI/2 + v_step));
 	}
 
 	return vertices;
